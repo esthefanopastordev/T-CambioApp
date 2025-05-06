@@ -1,0 +1,75 @@
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de Xcode
+build/
+DerivedData/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+
+# Archivos de workspace
+*.xcworkspace
+!default.xcworkspace
+xcshareddata/
+xcuserdata/
+
+# Archivos de playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# Archivos de Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# Archivos de CocoaPods
+Pods/
+Podfile.lock
+
+# Archivos de Carthage
+Carthage/
+Cartfile.resolved
+
+# Archivos de Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+
+# Archivos de AppCode (JetBrains)
+.idea/
+
+# Archivos de SPM (Swift Package Manager)
+.build/
+
+# Archivos de Xcode Server
+integration_logs/
+
+# Archivos de logs
+*.log
+
+# Archivos de Cache
+*.xcuserstate
+
+# Configuraciones temporales
+*.moved-aside
+*.swp
+*.lock
+
+# Configuraciones personales
+*.xcsettings
+*.xcodeproj/project.xcworkspace/xcuserdata
+*.xcodeproj/xcuserdata
+
+# Archivos de testing
+*.xctest
+
+# Firebase
+GoogleService-Info.plist
