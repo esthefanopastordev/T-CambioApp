@@ -9,7 +9,7 @@ import UIKit
 
 final class AppCoordinator: MainCoordinatorProtocol {
 
-    private var isLoggedIn: Bool = false
+    private var isLoggedIn: Bool = true
 
     var childCoordinators: [String : MainCoordinatorProtocol] = [:]
     var navigationController: UINavigationController
