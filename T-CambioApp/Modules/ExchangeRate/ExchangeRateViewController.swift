@@ -8,140 +8,218 @@
 import UIKit
 
 class ExchangeRateViewController: UIViewController {
-
-    let titleLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = .white
-        label.font = .systemFont(ofSize: 20, weight: .bold)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-
-    let containerView: UIView = {
+    
+    private enum Text {
+        static let navigationTitle = "Exchange Rate"
+        static let amountTitle = "Amount"
+        static let convertedAmountTitle = "Converted Amount"
+        static let indicativeRateTitle = "Indicative Exchange Rate"
+        static let usd = "USD"
+        static let pen = "PEN"
+        static let placeholder = "0.00"
+        static let exchangeRate = "1 USD = 3.65 PEN"
+    }
+    
+    // MARK: - Views
+    private let containerView: UIView = {
         let view = UIView()
-        view.backgroundColor = .white
-        view.layer.cornerRadius = 20
+        view.backgroundColor = AppStyle.Color.cardBackground
+        view.layer.cornerRadius = 12
         view.translatesAutoresizingMaskIntoConstraints = false
+        view.layoutMargins = UIEdgeInsets(
+            top: AppStyle.Spacing.cardPadding,
+            left: AppStyle.Spacing.cardPadding,
+            bottom: AppStyle.Spacing.cardPadding,
+            right: AppStyle.Spacing.cardPadding
+        )
         return view
     }()
-
-    let amountTitleLabel: UILabel = {
+    
+    private let amountTitleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
-    let amountLabel: UILabel = {
+    
+    private let currencyLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
-    let amountTextField: UITextField = {
-        let textField = UITextField()
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        return textField
+    
+    private let amountTextField: UITextField = {
+        let tf = UITextField()
+        tf.translatesAutoresizingMaskIntoConstraints = false
+        tf.keyboardType = .decimalPad
+        tf.textAlignment = .right
+        return tf
     }()
-
-    let convertedAmountTitleLabel: UILabel = {
+    
+    private let convertedAmountTitleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
-    let convertedAmountLabel: UILabel = {
+    
+    private let currencyToConvertAmountLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
-    let convertedAmountTextField: UITextField = {
-        let textField = UITextField()
-        textField.isEnabled = false
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        return textField
+    
+    private let convertedAmountTextField: UITextField = {
+        let tf = UITextField()
+        tf.translatesAutoresizingMaskIntoConstraints = false
+        tf.isEnabled = false
+        tf.textAlignment = .right
+        return tf
     }()
-
-    let exchangeRateTitleLabel: UILabel = {
+    
+    private let exchangeRateTitleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .white
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
-    let exchangeRateLabel: UILabel = {
+    
+    private let exchangeRateLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .white
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
+    
+    private lazy var mainStack: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [
+            makeFieldSection(title: amountTitleLabel, currency: currencyLabel, field: amountTextField),
+            makeSectionSeparator(),
+            makeFieldSection(title: convertedAmountTitleLabel, currency: currencyToConvertAmountLabel, field: convertedAmountTextField)
+        ])
+        stack.axis = .vertical
+        stack.spacing = 0 // important for the spacer to control spacing
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
+    
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        titleLabel.text = "Exchange Rate"
-
-        view.addSubview(titleLabel)
+        
+        setupNavigationBar()
+        setupViews()
+        applyStyles()
+    }
+    
+    // MARK: - Setup
+    private func setupNavigationBar() {
+        navigationItem.title = Text.navigationTitle
+        navigationController?.navigationBar.prefersLargeTitles = true
+        
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
+        appearance.backgroundEffect = UIBlurEffect(style: .systemMaterial)
+        appearance.backgroundColor = AppStyle.Color.navBarBackground
+        appearance.shadowColor = AppStyle.Color.separator
+        appearance.titleTextAttributes = [.foregroundColor: AppStyle.Color.label]
+        appearance.largeTitleTextAttributes = [.foregroundColor: AppStyle.Color.label]
+        
+        guard let navBar = navigationController?.navigationBar else { return }
+        navBar.standardAppearance = appearance
+        navBar.scrollEdgeAppearance = appearance
+        navBar.compactAppearance = appearance
+        navBar.tintColor = AppStyle.Color.tint
+    }
+    
+    private func setupViews() {
+        view.backgroundColor = AppStyle.Color.background
+        
         view.addSubview(containerView)
-
-        amountTitleLabel.text = "Amount"
-
-        containerView.addSubview(amountTitleLabel)
-
-        amountLabel.text = "USD"
-
-        containerView.addSubview(amountLabel)
-
-        amountTextField.placeholder = "0.00"
-
-        containerView.addSubview(amountTextField)
-
-        convertedAmountTitleLabel.text = "Converted Amount"
-
-        containerView.addSubview(convertedAmountTitleLabel)
-
-        convertedAmountLabel.text = "PEN"
-
-        containerView.addSubview(convertedAmountLabel)
-
-        convertedAmountTextField.placeholder = "0.00"
-
-        containerView.addSubview(convertedAmountTextField)
-
-        exchangeRateTitleLabel.text = "Indicative Exchange Rate"
-
-        containerView.addSubview(exchangeRateTitleLabel)
-
-        exchangeRateLabel.text = "1 USD = 3.65 PEN"
-
-        containerView.addSubview(exchangeRateLabel)
-
+        containerView.addSubview(mainStack)
+        
+        view.addSubview(exchangeRateTitleLabel)
+        view.addSubview(exchangeRateLabel)
+        
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            containerView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 32),
-            containerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            containerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            containerView.heightAnchor.constraint(equalToConstant: 200),
-            amountTitleLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 20),
-            amountTitleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
-            amountLabel.topAnchor.constraint(equalTo: amountTitleLabel.bottomAnchor, constant: 14),
-            amountLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
-            amountTextField.topAnchor.constraint(equalTo: amountTitleLabel.bottomAnchor, constant: 14),
-            amountTextField.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
-            amountTextField.leadingAnchor.constraint(greaterThanOrEqualTo: amountLabel.trailingAnchor, constant: 8),
-            convertedAmountTitleLabel.topAnchor.constraint(equalTo: amountLabel.bottomAnchor, constant: 40),
-            convertedAmountTitleLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
-            convertedAmountLabel.topAnchor.constraint(equalTo: convertedAmountTitleLabel.bottomAnchor, constant: 14),
-            convertedAmountLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 20),
-            convertedAmountTextField.topAnchor.constraint(equalTo: convertedAmountTitleLabel.bottomAnchor, constant: 14),
-            convertedAmountTextField.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -20),
-            convertedAmountTextField.leadingAnchor.constraint(greaterThanOrEqualTo: convertedAmountLabel.trailingAnchor, constant: 8),
-            exchangeRateTitleLabel.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 32),
-            exchangeRateTitleLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            exchangeRateLabel.topAnchor.constraint(equalTo: exchangeRateTitleLabel.bottomAnchor, constant: 14),
-            exchangeRateLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16)
+            containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: AppStyle.Spacing.sectionSpacing),
+            containerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: AppStyle.Spacing.screenPadding),
+            containerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -AppStyle.Spacing.screenPadding),
+            
+            mainStack.topAnchor.constraint(equalTo: containerView.layoutMarginsGuide.topAnchor),
+            mainStack.leadingAnchor.constraint(equalTo: containerView.layoutMarginsGuide.leadingAnchor),
+            mainStack.trailingAnchor.constraint(equalTo: containerView.layoutMarginsGuide.trailingAnchor),
+            mainStack.bottomAnchor.constraint(equalTo: containerView.layoutMarginsGuide.bottomAnchor),
+            
+            exchangeRateTitleLabel.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: AppStyle.Spacing.sectionSpacing + 16),
+            exchangeRateTitleLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: AppStyle.Spacing.screenPadding),
+            
+            exchangeRateLabel.topAnchor.constraint(equalTo: exchangeRateTitleLabel.bottomAnchor, constant: AppStyle.Spacing.elementSpacing),
+            exchangeRateLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: AppStyle.Spacing.screenPadding),
         ])
     }
+    
+    private func applyStyles() {
+        // Titles
+        amountTitleLabel.text = Text.amountTitle
+        convertedAmountTitleLabel.text = Text.convertedAmountTitle
+        exchangeRateTitleLabel.text = Text.indicativeRateTitle
+        
+        // Currency Labels
+        currencyLabel.text = Text.pen
+        currencyToConvertAmountLabel.text = Text.usd
+        
+        // TextFields
+        amountTextField.placeholder = Text.placeholder
+        convertedAmountTextField.placeholder = Text.placeholder
+        
+        // Exchange rate
+        exchangeRateLabel.text = Text.exchangeRate
+        
+        // Fonts
+        amountTitleLabel.font = AppStyle.Font.sectionTitle
+        convertedAmountTitleLabel.font = AppStyle.Font.sectionTitle
+        currencyLabel.font = AppStyle.Font.currencyLabel
+        currencyToConvertAmountLabel.font = AppStyle.Font.currencyLabel
+        amountTextField.font = AppStyle.Font.value
+        convertedAmountTextField.font = AppStyle.Font.value
+        exchangeRateLabel.font = AppStyle.Font.value
+        exchangeRateTitleLabel.font = AppStyle.Font.smallCaption
+        
+        // Colors
+        exchangeRateLabel.textColor = AppStyle.Color.secondaryLabel
+        exchangeRateTitleLabel.textColor = AppStyle.Color.secondaryLabel
+    }
+    
+    private func makeFieldSection(title: UILabel, currency: UILabel, field: UITextField) -> UIStackView {
+        let currencyStack = UIStackView(arrangedSubviews: [currency, field])
+        currencyStack.axis = .horizontal
+        currencyStack.spacing = AppStyle.Spacing.elementSpacing
+        currencyStack.distribution = .fill
+        currency.setContentHuggingPriority(.required, for: .horizontal)
+        field.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        
+        let verticalStack = UIStackView(arrangedSubviews: [title, currencyStack])
+        verticalStack.axis = .vertical
+        verticalStack.spacing = AppStyle.Spacing.elementSpacing
+        return verticalStack
+    }
+    
+    private func makeSectionSeparator(spacing: CGFloat = 24) -> UIView {
+        let halfSpacing = spacing / 2
+        let topSpacer = UIView()
+        topSpacer.translatesAutoresizingMaskIntoConstraints = false
+        topSpacer.heightAnchor.constraint(equalToConstant: halfSpacing).isActive = true
 
+        let line = UIView()
+        line.translatesAutoresizingMaskIntoConstraints = false
+        line.backgroundColor = AppStyle.Color.separator
+        line.heightAnchor.constraint(equalToConstant: 1 / UIScreen.main.scale).isActive = true
+
+        let bottomSpacer = UIView()
+        bottomSpacer.translatesAutoresizingMaskIntoConstraints = false
+        bottomSpacer.heightAnchor.constraint(equalToConstant: halfSpacing).isActive = true
+
+        let wrapper = UIStackView(arrangedSubviews: [topSpacer, line, bottomSpacer])
+        wrapper.axis = .vertical
+        wrapper.translatesAutoresizingMaskIntoConstraints = false
+        return wrapper
+    }
+    
 }
