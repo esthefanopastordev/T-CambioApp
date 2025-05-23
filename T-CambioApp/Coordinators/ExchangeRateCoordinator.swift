@@ -21,8 +21,8 @@ final class ExchangeRateCoordinator: MainCoordinatorProtocol {
 extension ExchangeRateCoordinator {
 
     func start() {
-        let exchangeRate = ExchangeRateViewController()
-
+        let exchangeRateViewModel = ExchangeRateViewModel()
+        let exchangeRate = ExchangeRateViewController(viewModel: exchangeRateViewModel)
         navigationController.setViewControllers([exchangeRate], animated: false)
     }
 

@@ -6,8 +6,9 @@
 //
 
 import UIKit
+import Combine
 
-class ExchangeRateViewController: UIViewController {
+final class ExchangeRateViewController: UIViewController {
     
     private enum Text {
         static let navigationTitle = "Exchange Rate"
@@ -99,6 +100,18 @@ class ExchangeRateViewController: UIViewController {
         return stack
     }()
     
+    private var viewModel: ExchangeRateViewModel
+    private var subscriptions = Set<AnyCancellable>()
+    
+    init(viewModel: ExchangeRateViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -106,6 +119,7 @@ class ExchangeRateViewController: UIViewController {
         setupNavigationBar()
         setupViews()
         applyStyles()
+        setupSubscriptions()
     }
     
     // MARK: - Setup
@@ -187,6 +201,26 @@ class ExchangeRateViewController: UIViewController {
         exchangeRateTitleLabel.textColor = AppStyle.Color.secondaryLabel
     }
     
+    private func setupSubscriptions() {
+        amountTextField.textPublisher
+            .assign(to: \.amountInput, on: viewModel)
+            .store(in: &subscriptions)
+        
+        viewModel.$exchangeRate
+            .receive(on: RunLoop.main)
+            .sink { exchangeRate in
+                print("Exchange Rate: \(String(describing: exchangeRate?.rate))")
+            }
+            .store(in: &subscriptions)
+        
+        viewModel.$convertedAmount
+            .receive(on: RunLoop.main)
+            .sink { [weak self] value in
+                self?.convertedAmountTextField.text = value
+            }
+            .store(in: &subscriptions)
+    }
+    
     private func makeFieldSection(title: UILabel, currency: UILabel, field: UITextField) -> UIStackView {
         let currencyStack = UIStackView(arrangedSubviews: [currency, field])
         currencyStack.axis = .horizontal
@@ -206,20 +240,31 @@ class ExchangeRateViewController: UIViewController {
         let topSpacer = UIView()
         topSpacer.translatesAutoresizingMaskIntoConstraints = false
         topSpacer.heightAnchor.constraint(equalToConstant: halfSpacing).isActive = true
-
+        
         let line = UIView()
         line.translatesAutoresizingMaskIntoConstraints = false
         line.backgroundColor = AppStyle.Color.separator
         line.heightAnchor.constraint(equalToConstant: 1 / UIScreen.main.scale).isActive = true
-
+        
         let bottomSpacer = UIView()
         bottomSpacer.translatesAutoresizingMaskIntoConstraints = false
         bottomSpacer.heightAnchor.constraint(equalToConstant: halfSpacing).isActive = true
-
+        
         let wrapper = UIStackView(arrangedSubviews: [topSpacer, line, bottomSpacer])
         wrapper.axis = .vertical
         wrapper.translatesAutoresizingMaskIntoConstraints = false
         return wrapper
+    }
+    
+}
+
+extension UITextField {
+    
+    var textPublisher: AnyPublisher<String, Never> {
+        NotificationCenter.default
+            .publisher(for: UITextField.textDidChangeNotification, object: self)
+            .compactMap { ($0.object as? UITextField)?.text }
+            .eraseToAnyPublisher()
     }
     
 }
