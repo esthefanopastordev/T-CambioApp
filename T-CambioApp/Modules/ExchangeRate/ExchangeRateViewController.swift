@@ -203,14 +203,14 @@ final class ExchangeRateViewController: UIViewController {
     
     private func setupSubscriptions() {
         amountTextField.textPublisher
-            .assign(to: \.amountInput, on: viewModel)
+            .assign(to: \ExchangeRateViewModel.amountInput, on: viewModel)
             .store(in: &subscriptions)
         
         viewModel.$exchangeRate
+            .map { $0?.rate ?? 3.65 }
+            .map { "1 USD = \(String(format: "%.2f", $0)) PEN" }
             .receive(on: RunLoop.main)
-            .sink { exchangeRate in
-                print("Exchange Rate: \(String(describing: exchangeRate?.rate))")
-            }
+            .assign(to: \ExchangeRateViewController.exchangeRateLabel.text, on: self)
             .store(in: &subscriptions)
         
         viewModel.$convertedAmount

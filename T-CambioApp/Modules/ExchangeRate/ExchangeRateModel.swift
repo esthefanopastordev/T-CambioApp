@@ -8,6 +8,6 @@
 import Foundation
 
 struct ExchangeRate {
-    let currency: String
     let rate: Double
+    let updatedAt: Date
 }
